@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Controlador Maestro SGMP</title>
+  <style>
+    :root{
+      --bg:#EEF2F8;
+      --card:#FFFFFF;
+      --text:#0A1F44;
+      --muted:#5B6F8A;
+      --sidebar:#0B2340;
+      --primary:#1A56DB;
+      --primary2:#00A3FF;
+      --green:#16A34A;
+      --amber:#F59E0B;
+      --red:#DC2626;
+      --line:#D8E0EC;
+      --soft:#F6F8FC;
+      --shadow:0 18px 45px rgba(10,31,68,.10);
+      --radius:22px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    .app{min-height:100vh;display:grid;grid-template-columns:290px 1fr}
+    aside{background:linear-gradient(180deg,#0B2340,#07182C);color:white;padding:24px;position:sticky;top:0;height:100vh;overflow:auto}
+    .brand{display:flex;gap:12px;align-items:center;margin-bottom:22px}
+    .mark{width:44px;height:44px;border-radius:16px;background:linear-gradient(135deg,var(--primary),var(--primary2));display:grid;place-items:center;font-weight:900;box-shadow:0 10px 28px rgba(26,86,219,.35)}
+    .brand h1{font-size:18px;line-height:1.1;margin:0}.brand p{margin:4px 0 0;color:rgba(255,255,255,.7);font-size:12px}
+    .side-section{margin-top:22px}.side-title{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.48);margin-bottom:10px}
+    .nav-btn{width:100%;border:0;border-radius:14px;background:transparent;color:rgba(255,255,255,.78);padding:12px 14px;text-align:left;cursor:pointer;margin-bottom:8px;font-weight:700;display:flex;justify-content:space-between;gap:10px}
+    .nav-btn.active,.nav-btn:hover{background:rgba(26,86,219,.24);color:#fff}.badge{font-size:11px;padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.12)}
+    .small{font-size:12px;color:var(--muted)}
+    main{padding:26px;min-width:0}.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:22px}.topbar h2{margin:0;font-size:24px}.topbar p{margin:5px 0 0;color:var(--muted)}
+    .top-actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:0;border-radius:14px;padding:11px 15px;font-weight:800;cursor:pointer;background:#E7EDF7;color:var(--text)}.btn.primary{background:var(--primary);color:white}.btn.danger{background:#FEE2E2;color:#991B1B}.btn.green{background:#DCFCE7;color:#166534}.btn.ghost{background:white;border:1px solid var(--line)}
+    .grid{display:grid;gap:18px}.grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .card{background:var(--card);border:1px solid rgba(216,224,236,.9);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;min-width:0}.card h3{margin:0 0 10px;font-size:17px}.card p{color:var(--muted)}
+    .metric{font-size:30px;font-weight:900;margin:6px 0}.status{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:900;border-radius:999px;padding:6px 10px}.status.idea{background:#E0F2FE;color:#075985}.status.diseno{background:#EDE9FE;color:#5B21B6}.status.piloto{background:#FEF3C7;color:#92400E}.status.desarrollo{background:#DBEAFE;color:#1E40AF}.status.validacion{background:#DCFCE7;color:#166534}.status.pausado{background:#F3F4F6;color:#374151}.status.cerrado{background:#E5E7EB;color:#111827}.status.riesgo{background:#FEE2E2;color:#991B1B}
+    .initiative-list{display:grid;gap:12px}.initiative{border:1px solid var(--line);border-radius:18px;padding:15px;background:white;cursor:pointer;transition:.15s}.initiative:hover{transform:translateY(-1px);box-shadow:0 12px 26px rgba(10,31,68,.08)}.initiative.active{outline:3px solid rgba(26,86,219,.20);border-color:var(--primary)}.initiative-title{display:flex;justify-content:space-between;gap:10px;align-items:start}.initiative h4{margin:0}.progress{height:9px;background:#E8EEF7;border-radius:999px;overflow:hidden;margin-top:12px}.progress span{display:block;height:100%;background:linear-gradient(90deg,var(--primary),var(--primary2));width:0%}
+    .tabs{display:flex;gap:9px;flex-wrap:wrap;margin:4px 0 18px}.tab{border:1px solid var(--line);background:white;border-radius:999px;padding:9px 13px;font-weight:900;color:var(--muted);cursor:pointer}.tab.active{background:var(--primary);color:white;border-color:var(--primary)}
+    label{font-size:12px;font-weight:900;color:#31445F;margin-bottom:6px;display:block}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff;color:var(--text);font:inherit}textarea{min-height:110px;resize:vertical}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{margin-bottom:14px}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:18px}table{width:100%;border-collapse:collapse;background:#fff}th,td{padding:12px;border-bottom:1px solid var(--line);text-align:left;font-size:13px;vertical-align:top}th{background:#F7FAFD;color:#31445F;font-size:12px;text-transform:uppercase;letter-spacing:.06em}.mini-actions{display:flex;gap:8px;flex-wrap:wrap}.hidden{display:none!important}.login{min-height:100vh;display:grid;place-items:center;padding:22px}.login-box{width:min(460px,100%);background:white;border-radius:28px;box-shadow:var(--shadow);padding:28px}.login-box .mark{margin-bottom:16px}.login-box h1{margin:0}.login-box p{color:var(--muted)}
+    .question{border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:12px;background:#fff}.question strong{display:block;margin-bottom:10px}.footer-note{margin-top:18px;color:var(--muted);font-size:12px}.pill{display:inline-block;border-radius:999px;background:#EEF4FF;color:#1E40AF;padding:5px 9px;font-size:12px;font-weight:900}.empty{border:1px dashed #B7C3D7;border-radius:18px;padding:24px;text-align:center;color:var(--muted);background:#FAFCFF}
+    @media(max-width:980px){.app{grid-template-columns:1fr}aside{height:auto;position:relative}.grid.cols-3,.grid.cols-2,.form-grid{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}.top-actions{width:100%}.btn{flex:1}.tabs{overflow:auto;flex-wrap:nowrap;padding-bottom:4px}.tab{white-space:nowrap}}
+  </style>
+</head>
+<body>
+  <div id="loginView" class="login">
+    <div class="login-box">
+      <div class="mark">CM</div>
+      <h1 id="loginTitle">Controlador Maestro SGMP</h1>
+      <p id="loginSubtitle">Gobierno de iniciativas, definiciones, avances y trazabilidad.</p>
+      <div class="field"><label>Usuario</label><input id="loginUser" autocomplete="username" placeholder="usuario" /></div>
+      <div class="field"><label>Contraseña</label><input id="loginPass" type="password" autocomplete="current-password" placeholder="contraseña" /></div>
+      <div class="field"><label>PIN admin</label><input id="loginPin" type="password" inputmode="numeric" placeholder="PIN" /></div>
+      <button class="btn primary" style="width:100%" onclick="login()">Entrar</button>
+      <p id="loginMsg" class="footer-note"></p>
+    </div>
+  </div>
+
+  <div id="appView" class="app hidden">
+    <aside>
+      <div class="brand">
+        <div class="mark">CM</div>
+        <div><h1 id="appName">Controlador Maestro</h1><p id="appVersion">MVP v1.0</p></div>
+      </div>
+      <div class="side-section"><div class="side-title">Navegación</div>
+        <button class="nav-btn active" onclick="showSection('dashboard', this)">Dashboard <span class="badge">inicio</span></button>
+        <button class="nav-btn" onclick="showSection('initiative', this)">Iniciativa activa <span class="badge" id="activeBadge">0</span></button>
+        <button class="nav-btn" onclick="showSection('admin', this)">Admin <span class="badge">config</span></button>
+        <button class="nav-btn" onclick="showSection('export', this)">Carga / descarga <span class="badge">JSON</span></button>
+      </div>
+      <div class="side-section"><div class="side-title">Iniciativas precargadas</div><div id="sideInitiatives"></div></div>
+      <div class="side-section"><button class="btn danger" style="width:100%" onclick="logout()">Salir</button></div>
+    </aside>
+
+    <main>
+      <section id="dashboardSec">
+        <div class="topbar"><div><h2>Dashboard de iniciativas</h2><p>Control ejecutivo del programa SGMP y frentes derivados.</p></div><div class="top-actions"><button class="btn primary" onclick="newInitiative()">Nueva iniciativa</button><button class="btn ghost" onclick="saveLocal()">Guardar local</button></div></div>
+        <div class="grid cols-3" style="margin-bottom:18px">
+          <div class="card"><h3>Total iniciativas</h3><div class="metric" id="mTotal">0</div><span class="small">registradas</span></div>
+          <div class="card"><h3>Activas</h3><div class="metric" id="mActive">0</div><span class="small">no cerradas</span></div>
+          <div class="card"><h3>Bloqueos abiertos</h3><div class="metric" id="mBlocks">0</div><span class="small">requieren acción</span></div>
+        </div>
+        <div class="grid cols-2">
+          <div class="card"><h3>Iniciativas</h3><div id="initiativeList" class="initiative-list"></div></div>
+          <div class="card"><h3>Resumen de la iniciativa seleccionada</h3><div id="selectedSummary" class="empty">Selecciona una iniciativa.</div></div>
+        </div>
+      </section>
+
+      <section id="initiativeSec" class="hidden">
+        <div class="topbar"><div><h2 id="currentTitle">Iniciativa activa</h2><p id="currentSubtitle">Define, ordena y actualiza el avance.</p></div><div class="top-actions"><button class="btn green" onclick="downloadCurrentJson()">Descargar JSON</button><button class="btn ghost" onclick="duplicateCurrent()">Duplicar</button><button class="btn danger" onclick="closeCurrent()">Cerrar</button></div></div>
+        <div id="noInitiative" class="empty">Selecciona o crea una iniciativa.</div>
+        <div id="initiativeWorkspace" class="hidden">
+          <div class="tabs" id="tabs"></div>
+          <div id="tabContent"></div>
+        </div>
+      </section>
+
+      <section id="adminSec" class="hidden">
+        <div class="topbar"><div><h2>Administración del controlador</h2><p>Textos visibles, conexión y configuración general.</p></div></div>
+        <div class="card">
+          <div class="form-grid">
+            <div class="field"><label>Nombre visible del aplicativo</label><input id="cfgName" /></div>
+            <div class="field"><label>Versión visible</label><input id="cfgVersion" /></div>
+            <div class="field"><label>Endpoint Apps Script</label><input id="cfgEndpoint" placeholder="https://script.google.com/macros/s/.../exec" /></div>
+            <div class="field"><label>PIN admin local</label><input id="cfgPin" type="password" /></div>
+          </div>
+          <div class="field"><label>Slogan / subtítulo</label><input id="cfgSubtitle" /></div>
+          <button class="btn primary" onclick="saveConfigFromForm()">Guardar configuración</button>
+          <p class="footer-note">En el MVP, estos datos se guardan localmente y pueden sincronizarse con Sheets si configuras el Apps Script.</p>
+        </div>
+      </section>
+
+      <section id="exportSec" class="hidden">
+        <div class="topbar"><div><h2>Carga y descarga</h2><p>Importa respaldos JSON y exporta el estado completo.</p></div></div>
+        <div class="grid cols-2">
+          <div class="card"><h3>Cargar JSON</h3><input type="file" id="jsonFile" accept=".json,.txt" onchange="loadJsonFile(event)" /><p class="footer-note">Puedes cargar un respaldo anterior del controlador completo o de una iniciativa.</p></div>
+          <div class="card"><h3>Descargar</h3><div class="mini-actions"><button class="btn primary" onclick="downloadAllJson()">Descargar controlador completo</button><button class="btn ghost" onclick="copyExecutiveSummary()">Copiar resumen ejecutivo</button></div><p class="footer-note" id="copyMsg"></p></div>
+        </div>
+        <div class="card" style="margin-top:18px"><h3>Resumen ejecutivo generado</h3><textarea id="executiveSummary" readonly></textarea></div>
+      </section>
+    </main>
+  </div>
+
+<script>
+const DEFAULT_PIN = '2026';
+const TABS = [
+  {id:'identity', label:'Identidad'}, {id:'plan', label:'Plan'}, {id:'questions', label:'Preguntas'},
+  {id:'tasks', label:'Tareas'}, {id:'blocks', label:'Bloqueos'}, {id:'links', label:'Links'}, {id:'closure', label:'Cierre'}
+];
+const STATUS = ['Idea','Diseño','Piloto','Desarrollo','Validación','Implementado','Pausado','Cerrado','Descartado'];
+let app = {
+  config:{name:'Controlador Maestro SGMP', version:'MVP v1.0', subtitle:'Gobierno de iniciativas, definiciones, avances y trazabilidad.', endpoint:'', pin:DEFAULT_PIN},
+  session:null,
+  currentId:null,
+  initiatives: seedInitiatives()
+};
+function seedInitiatives(){
+  const base = [
+    ['sgmp_general','SGMP General','Núcleo SGMP','Desarrollo integral del ecosistema, launcher, admin, módulos, permisos, rutas y ajustes pendientes.'],
+    ['launcher_admin','Launcher / Admin SGMP','Núcleo SGMP','Control visual, usuarios, permisos, textos configurables, módulos, logs y versiones.'],
+    ['lmp','LMP','Módulos core','Laboratorio de Mejora de Procesos: levantamiento, AS IS, TO BE, AVA y propuestas.'],
+    ['sb','SB','Módulos core','SIPOC Builder y diagramación estructurada.'],
+    ['ed','ED','Módulos core','Evaluador Documental para decidir documentos a mantener, ajustar, fusionar, crear o eliminar.'],
+    ['gd','GD','Módulos core','Generador Documental.'],
+    ['ad','AD','Módulos core','Auditor Documental.'],
+    ['watchtower','Watchtower','Control','Seguimiento de avance, calidad, tiempos y riesgos.'],
+    ['ia_local','IA local híbrida','Expansión inteligente','Servidor local, modelos, audio, voz, seguridad y operación económica.'],
+    ['learning_center','Learning Center','Formación','Mini-LMS para cursos, materiales, evaluaciones y certificados.'],
+    ['cerebro_asiservy','Comité / Cerebro Asiservy','Gestión y formación','Lógica de comité, conocimiento interno e IA local aplicada a Asiservy.'],
+    ['mineria_procesos','Minería de procesos y tareas','Expansión inteligente','Captura de patrones, desviaciones, excepciones y secuencias repetitivas.'],
+    ['layout_logistico','Consultoría logística / layout','Consultoría','Rediseño de flujo, layout, capacidad, operación y propuesta consultiva.'],
+    ['simulacion_capacidad','Simulación / capacidad','Expansión inteligente','Dimensionamiento, distribución triangular, Monte Carlo y FTE/capacidad.']
+  ];
+  return base.map((b,i)=>({
+    id:b[0], name:b[1], category:b[2], status:i<2?'Desarrollo':'Idea', priority:i<2?'Alta':'Media', owner:'José', progress:i<2?35:5,
+    objective:b[3], scope:'', successCriteria:'', assumptions:'', restrictions:'', dependencies:'', nextSteps:'',
+    questions: defaultQuestions(b[0]), tasks:[], blocks:[], links:[], closure:{result:'', lessons:'', pending:'', closedBy:'', closedAt:'', reason:''},
+    createdAt:new Date().toISOString(), updatedAt:new Date().toISOString(), version:'1.0'
+  }));
+}
+function defaultQuestions(id){
+  const common = [
+    ['q_obj','¿Cuál es el objetivo concreto de esta iniciativa?',''],
+    ['q_value','¿Qué valor genera y para quién?',''],
+    ['q_scope','¿Qué entra y qué queda fuera del alcance?',''],
+    ['q_risk','¿Cuál es el mayor riesgo si se ejecuta mal?',''],
+    ['q_success','¿Cómo sabremos que funcionó?','']
+  ];
+  const specific = {
+    learning_center:[
+      ['q_lc1','¿Cuál será el primer curso piloto y a qué público se asignará?',''],
+      ['q_lc2','¿Qué formato se usará para las láminas: PDF, imágenes o Google Slides publicado?',''],
+      ['q_lc3','¿Qué reglas de aprobación, intentos y certificado aplican?','']
+    ],
+    sgmp_general:[
+      ['q_sgmp1','¿Qué módulos son obligatorios para considerar estable el núcleo SGMP?',''],
+      ['q_sgmp2','¿Qué errores actuales bloquean el avance?',''],
+      ['q_sgmp3','¿Qué textos, nombres y versiones deben salir desde Admin?','']
+    ],
+    ia_local:[
+      ['q_ia1','¿Qué tareas deben ejecutarse localmente y cuáles pueden usar nube?',''],
+      ['q_ia2','¿Qué nivel de privacidad requiere cada cliente?',''],
+      ['q_ia3','¿Qué hardware mínimo se aceptará para piloto?','']
+    ]
+  };
+  return [...common, ...(specific[id]||[])].map(x=>({id:x[0], question:x[1], answer:x[2], status:'Pendiente'}));
+}
+function $(id){return document.getElementById(id)}
+function saveLocal(){localStorage.setItem('cm_sgmp_state', JSON.stringify(app)); alert('Guardado local.');}
+function loadLocal(){const raw=localStorage.getItem('cm_sgmp_state'); if(raw){try{app=JSON.parse(raw)}catch(e){}} renderAll();}
+function login(){
+  const u=$('loginUser').value.trim(); const p=$('loginPass').value.trim(); const pin=$('loginPin').value.trim();
+  const expectedPin = app.config.pin || DEFAULT_PIN;
+  if(!u || !p || pin!==expectedPin){$('loginMsg').textContent='Credenciales o PIN incorrectos. Para el primer piloto usa cualquier usuario/contraseña y el PIN configurado.'; return;}
+  app.session={user:u, role:'Super Admin', loginAt:new Date().toISOString()};
+  $('loginView').classList.add('hidden'); $('appView').classList.remove('hidden'); renderAll();
+}
+function logout(){app.session=null; $('appView').classList.add('hidden'); $('loginView').classList.remove('hidden');}
+function showSection(name,btn){['dashboard','initiative','admin','export'].forEach(s=>$(s+'Sec').classList.add('hidden')); $(name+'Sec').classList.remove('hidden'); document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active')); if(btn)btn.classList.add('active'); if(name==='export') updateExecutiveSummary();}
+function renderAll(){renderConfig(); renderInitiatives(); renderMetrics(); renderCurrent();}
+function renderConfig(){
+  $('appName').textContent=app.config.name; $('appVersion').textContent=app.config.version; $('loginTitle').textContent=app.config.name; $('loginSubtitle').textContent=app.config.subtitle;
+  ['Name','Version','Subtitle','Endpoint','Pin'].forEach(k=>{const el=$('cfg'+k); if(el) el.value=app.config[k.toLowerCase()]||''});
+}
+function renderMetrics(){
+  $('mTotal').textContent=app.initiatives.length;
+  $('mActive').textContent=app.initiatives.filter(i=>!['Cerrado','Descartado'].includes(i.status)).length;
+  $('mBlocks').textContent=app.initiatives.reduce((a,i)=>a+i.blocks.filter(b=>b.status!=='Cerrado').length,0);
+}
+function statusClass(s){return (s||'idea').toLowerCase().replace('ñ','n').replace('á','a').replace('é','e').replace('í','i').replace('ó','o').replace('ú','u');}
+function renderInitiatives(){
+  const list=$('initiativeList'), side=$('sideInitiatives'); list.innerHTML=''; side.innerHTML='';
+  app.initiatives.forEach(i=>{
+    const div=document.createElement('div'); div.className='initiative '+(app.currentId===i.id?'active':''); div.onclick=()=>selectInitiative(i.id);
+    div.innerHTML=`<div class="initiative-title"><div><h4>${esc(i.name)}</h4><div class="small">${esc(i.category)} · ${esc(i.owner||'')}</div></div><span class="status ${statusClass(i.status)}">${esc(i.status)}</span></div><div class="progress"><span style="width:${Number(i.progress||0)}%"></span></div><div class="small" style="margin-top:8px">Prioridad: ${esc(i.priority)} · Avance: ${Number(i.progress||0)}%</div>`;
+    list.appendChild(div);
+    const b=document.createElement('button'); b.className='nav-btn'; b.innerHTML=`${esc(i.name)} <span class="badge">${Number(i.progress||0)}%</span>`; b.onclick=()=>{selectInitiative(i.id); showSection('initiative')}; side.appendChild(b);
+  });
+  const selected=getCurrent();
+  $('selectedSummary').innerHTML=selected?summaryHtml(selected):'Selecciona una iniciativa.';
+  $('selectedSummary').className=selected?'':'empty';
+}
+function summaryHtml(i){return `<h3>${esc(i.name)}</h3><p>${esc(i.objective||'Sin objetivo definido.')}</p><p><span class="pill">${esc(i.category)}</span> <span class="pill">${esc(i.status)}</span> <span class="pill">Prioridad ${esc(i.priority)}</span></p><div class="progress"><span style="width:${Number(i.progress||0)}%"></span></div><p class="small">Actualizado: ${formatDate(i.updatedAt)}</p>`}
+function selectInitiative(id){app.currentId=id; $('activeBadge').textContent=id?1:0; renderInitiatives(); renderCurrent(); showSection('initiative');}
+function getCurrent(){return app.initiatives.find(i=>i.id===app.currentId)}
+function renderCurrent(){
+  const i=getCurrent(); if(!i){$('noInitiative').classList.remove('hidden'); $('initiativeWorkspace').classList.add('hidden'); return;}
+  $('noInitiative').classList.add('hidden'); $('initiativeWorkspace').classList.remove('hidden'); $('currentTitle').textContent=i.name; $('currentSubtitle').textContent=`${i.category} · ${i.status} · ${Number(i.progress||0)}%`;
+  renderTabs('identity');
+}
+function renderTabs(active){const box=$('tabs'); box.innerHTML=''; TABS.forEach(t=>{const b=document.createElement('button'); b.className='tab '+(t.id===active?'active':''); b.textContent=t.label; b.onclick=()=>renderTabs(t.id); box.appendChild(b)}); renderTabContent(active);}
+function renderTabContent(tab){
+  const i=getCurrent(), c=$('tabContent'); if(!i)return; i.updatedAt=new Date().toISOString();
+  if(tab==='identity') c.innerHTML=identityHtml(i);
+  if(tab==='plan') c.innerHTML=planHtml(i);
+  if(tab==='questions') c.innerHTML=questionsHtml(i);
+  if(tab==='tasks') c.innerHTML=listHtml('tasks',i.tasks,['tarea','responsable','fecha','estado'],'Tareas / backlog');
+  if(tab==='blocks') c.innerHTML=listHtml('blocks',i.blocks,['bloqueo','responsable','fecha','estado'],'Bloqueos');
+  if(tab==='links') c.innerHTML=listHtml('links',i.links,['nombre','tipo','url','estado'],'Evidencias y links');
+  if(tab==='closure') c.innerHTML=closureHtml(i);
+}
+function identityHtml(i){return `<div class="card"><h3>Identidad</h3><div class="form-grid"><div class="field"><label>Nombre</label><input value="${esc(i.name)}" onchange="upd('name',this.value)"></div><div class="field"><label>Categoría</label><input value="${esc(i.category)}" onchange="upd('category',this.value)"></div><div class="field"><label>Estado</label><select onchange="upd('status',this.value)">${STATUS.map(s=>`<option ${i.status===s?'selected':''}>${s}</option>`).join('')}</select></div><div class="field"><label>Prioridad</label><select onchange="upd('priority',this.value)">${['Alta','Media','Baja'].map(s=>`<option ${i.priority===s?'selected':''}>${s}</option>`).join('')}</select></div><div class="field"><label>Responsable</label><input value="${esc(i.owner||'')}" onchange="upd('owner',this.value)"></div><div class="field"><label>Avance %</label><input type="number" min="0" max="100" value="${Number(i.progress||0)}" onchange="upd('progress',this.value)"></div></div><div class="field"><label>Objetivo</label><textarea onchange="upd('objective',this.value)">${esc(i.objective||'')}</textarea></div></div>`}
+function planHtml(i){return `<div class="card"><h3>Plan y definiciones</h3>${area('scope','Alcance',i.scope)}${area('successCriteria','Criterios de éxito',i.successCriteria)}${area('assumptions','Supuestos',i.assumptions)}${area('restrictions','Restricciones',i.restrictions)}${area('dependencies','Dependencias',i.dependencies)}${area('nextSteps','Próximos pasos',i.nextSteps)}</div>`}
+function area(key,label,val){return `<div class="field"><label>${label}</label><textarea onchange="upd('${key}',this.value)">${esc(val||'')}</textarea></div>`}
+function questionsHtml(i){return `<div class="card"><h3>Batería de preguntas</h3>${i.questions.map((q,idx)=>`<div class="question"><strong>${idx+1}. ${esc(q.question)}</strong><textarea onchange="updQuestion('${q.id}',this.value)">${esc(q.answer||'')}</textarea><div style="margin-top:10px"><label>Estado</label><select onchange="updQuestionStatus('${q.id}',this.value)">${['Pendiente','Respondida','Validada'].map(s=>`<option ${q.status===s?'selected':''}>${s}</option>`).join('')}</select></div></div>`).join('')}<button class="btn ghost" onclick="addQuestion()">Agregar pregunta</button></div>`}
+function listHtml(key,items,cols,title){return `<div class="card"><h3>${title}</h3><div class="table-wrap"><table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}<th></th></tr></thead><tbody>${items.map((it,idx)=>`<tr>${cols.map(c=>`<td><input value="${esc(it[c]||'')}" onchange="updItem('${key}',${idx},'${c}',this.value)"></td>`).join('')}<td><button class="btn danger" onclick="delItem('${key}',${idx})">Eliminar</button></td></tr>`).join('')}</tbody></table></div><button class="btn ghost" style="margin-top:12px" onclick="addItem('${key}',${JSON.stringify(cols).replace(/"/g,'&quot;')})">Agregar</button></div>`}
+function closureHtml(i){return `<div class="card"><h3>Cierre de iniciativa</h3>${areaClosure('result','Resultado final',i.closure.result)}${areaClosure('pending','Pendientes no cerrados',i.closure.pending)}${areaClosure('lessons','Lecciones aprendidas',i.closure.lessons)}<div class="form-grid"><div class="field"><label>Cerrado por</label><input value="${esc(i.closure.closedBy||'')}" onchange="updClosure('closedBy',this.value)"></div><div class="field"><label>Motivo</label><input value="${esc(i.closure.reason||'')}" onchange="updClosure('reason',this.value)"></div></div><button class="btn danger" onclick="closeCurrent()">Marcar como cerrada</button></div>`}
+function areaClosure(key,label,val){return `<div class="field"><label>${label}</label><textarea onchange="updClosure('${key}',this.value)">${esc(val||'')}</textarea></div>`}
+function upd(k,v){const i=getCurrent(); i[k]=k==='progress'?Math.max(0,Math.min(100,Number(v))):v; i.updatedAt=new Date().toISOString(); renderAll();}
+function updQuestion(id,v){const q=getCurrent().questions.find(x=>x.id===id); q.answer=v; q.status=v?'Respondida':'Pendiente';}
+function updQuestionStatus(id,v){getCurrent().questions.find(x=>x.id===id).status=v;}
+function addQuestion(){const txt=prompt('Nueva pregunta'); if(!txt)return; getCurrent().questions.push({id:'q_'+Date.now(), question:txt, answer:'', status:'Pendiente'}); renderTabs('questions');}
+function addItem(key,cols){const obj={}; cols.forEach(c=>obj[c]=''); getCurrent()[key].push(obj); renderTabs(key==='tasks'?'tasks':key==='blocks'?'blocks':'links');}
+function updItem(key,idx,c,v){getCurrent()[key][idx][c]=v;}
+function delItem(key,idx){getCurrent()[key].splice(idx,1); renderTabs(key==='tasks'?'tasks':key==='blocks'?'blocks':'links');}
+function updClosure(k,v){getCurrent().closure[k]=v;}
+function newInitiative(){const name=prompt('Nombre de la nueva iniciativa'); if(!name)return; const id=slug(name)+'_'+Date.now(); app.initiatives.push({id,name,category:'Nueva iniciativa',status:'Idea',priority:'Media',owner:'José',progress:0,objective:'',scope:'',successCriteria:'',assumptions:'',restrictions:'',dependencies:'',nextSteps:'',questions:defaultQuestions(id),tasks:[],blocks:[],links:[],closure:{},createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),version:'1.0'}); selectInitiative(id);}
+function duplicateCurrent(){const i=getCurrent(); if(!i)return; const copy=JSON.parse(JSON.stringify(i)); copy.id=i.id+'_copy_'+Date.now(); copy.name=i.name+' copia'; copy.status='Idea'; app.initiatives.push(copy); selectInitiative(copy.id);}
+function closeCurrent(){const i=getCurrent(); if(!i)return; if(!confirm('¿Marcar iniciativa como Cerrada?'))return; i.status='Cerrado'; i.closure.closedAt=new Date().toISOString(); i.closure.closedBy=app.session?.user||'admin'; i.updatedAt=new Date().toISOString(); renderAll();}
+function saveConfigFromForm(){app.config.name=$('cfgName').value; app.config.version=$('cfgVersion').value; app.config.subtitle=$('cfgSubtitle').value; app.config.endpoint=$('cfgEndpoint').value; app.config.pin=$('cfgPin').value||DEFAULT_PIN; saveLocal(); renderConfig(); alert('Configuración guardada.');}
+function loadJsonFile(ev){const file=ev.target.files[0]; if(!file)return; const reader=new FileReader(); reader.onload=()=>{try{const data=JSON.parse(reader.result); if(data.initiatives){app=data}else{app.initiatives.push(data); app.currentId=data.id} saveLocal(); renderAll(); alert('JSON cargado.');}catch(e){alert('No se pudo leer el JSON: '+e.message)}}; reader.readAsText(file);}
+function downloadAllJson(){downloadJson(app, `controlador_maestro_sgmp_${dateStamp()}.json`)}
+function downloadCurrentJson(){const i=getCurrent(); if(!i)return alert('Selecciona una iniciativa.'); downloadJson(i, `${slug(i.name)}_${dateStamp()}.json`)}
+function downloadJson(data,name){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); URL.revokeObjectURL(a.href)}
+function updateExecutiveSummary(){const lines=['# Resumen ejecutivo - Controlador Maestro SGMP','',`Fecha: ${new Date().toLocaleString()}`,'']; app.initiatives.forEach(i=>{lines.push(`## ${i.name}`); lines.push(`Estado: ${i.status} | Prioridad: ${i.priority} | Avance: ${i.progress}%`); lines.push(`Objetivo: ${i.objective||'No definido'}`); const openBlocks=i.blocks.filter(b=>b.estado!=='Cerrado'&&b.status!=='Cerrado').length; lines.push(`Bloqueos abiertos: ${openBlocks}`); lines.push('');}); $('executiveSummary').value=lines.join('\n');}
+function copyExecutiveSummary(){updateExecutiveSummary(); $('executiveSummary').select(); document.execCommand('copy'); $('copyMsg').textContent='Resumen copiado al portapapeles.';}
+function formatDate(iso){try{return new Date(iso).toLocaleString()}catch(e){return iso||''}}
+function dateStamp(){const d=new Date(); return d.toISOString().slice(0,10)+'_'+String(d.getHours()).padStart(2,'0')+String(d.getMinutes()).padStart(2,'0')}
+function slug(s){return String(s||'iniciativa').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+loadLocal();
+</script>
+</body>
+</html>
